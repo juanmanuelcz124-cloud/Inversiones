@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas360 - Control y Libertad Financiera</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    
+</head>
+<body class="text-gray-800 h-screen flex overflow-hidden">
+
+    <!-- Sidebar de Navegación -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col z-10">
+        <div class="h-16 flex items-center justify-center border-b border-gray-200">
+            <i class="fa-solid fa-chart-line text-blue-600 text-2xl mr-2"></i>
+            <h1 class="text-xl font-bold text-gray-800">Finanzas360</h1>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="sidebar-link active flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fa-solid fa-gauge mr-3 w-5"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('transactions')" id="nav-transactions" class="sidebar-link flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fa-solid fa-wallet mr-3 w-5"></i> Gastos e Ingresos
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('portfolio')" id="nav-portfolio" class="sidebar-link flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fa-solid fa-layer-group mr-3 w-5"></i> Inversiones & Riesgo
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('projection')" id="nav-projection" class="sidebar-link flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fa-solid fa-rocket mr-3 w-5"></i> Libertad Financiera
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('education')" id="nav-education" class="sidebar-link flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fa-solid fa-graduation-cap mr-3 w-5"></i> Educación
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-200">
+            <button onclick="clearData()" class="flex items-center text-sm text-red-500 hover:text-red-700">
+                <i class="fa-solid fa-trash mr-2"></i> Resetear Datos
+            </button>
+        </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- Header Móvil -->
+        <header class="md:hidden h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-20">
+            <div class="flex items-center">
+                <i class="fa-solid fa-chart-line text-blue-600 text-xl mr-2"></i>
+                <h1 class="text-lg font-bold">Finanzas360</h1>
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-gray-600 focus:outline-none">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </header>
+
+        <!-- Menu Móvil Dropdown -->
+        <div id="mobile-menu" class="hidden absolute top-16 left-0 w-full bg-white border-b border-gray-200 shadow-lg z-30 md:hidden">
+            <nav class="flex flex-col py-2">
+                <a href="#" onclick="navigate('dashboard'); toggleMobileMenu()" class="px-4 py-2 hover:bg-gray-100">Dashboard</a>
+                <a href="#" onclick="navigate('transactions'); toggleMobileMenu()" class="px-4 py-2 hover:bg-gray-100">Gastos</a>
+                <a href="#" onclick="navigate('portfolio'); toggleMobileMenu()" class="px-4 py-2 hover:bg-gray-100">Inversiones</a>
+                <a href="#" onclick="navigate('projection'); toggleMobileMenu()" class="px-4 py-2 hover:bg-gray-100">Proyección</a>
+            </nav>
+        </div>
+
+        <!-- Área de Vistas (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
+            
+            <!-- VISTA: DASHBOARD -->
+            <div id="view-dashboard" class="fade-in block">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Resumen Financiero</h2>
+                    <span class="text-sm text-gray-500" id="current-date"></span>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg card-shadow border-l-4 border-green-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 uppercase font-semibold">Ingresos (Mes)</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-income">$0.00</h3>
+                            </div>
+                            <div class="p-2 bg-green-100 rounded-full text-green-600">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg card-shadow border-l-4 border-red-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 uppercase font-semibold">Gastos (Mes)</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-expense">$0.00</h3>
+                            </div>
+                            <div class="p-2 bg-red-100 rounded-full text-red-600">
+                                <i class="fa-solid fa-arrow-trend-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg card-shadow border-l-4 border-blue-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 uppercase font-semibold">Tasa de Ahorro</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="kpi-savings">0%</h3>
+                            </div>
+                            <div class="p-2 bg-blue-100 rounded-full text-blue-600">
+                                <i class="fa-solid fa-piggy-bank"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart: Balance History -->
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Evolución de Patrimonio</h3>
+                        <div class="h-64">
+                            <canvas id="chart-networth"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart: Expense Breakdown -->
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Distribución de Gastos</h3>
+                        <div class="h-64 flex justify-center">
+                            <canvas id="chart-expenses-summary"></canvas>
+                        </div>
+                        <div id="no-expenses-msg" class="hidden text-center text-gray-400 mt-10">Sin datos de gastos aún.</div>
+                    </div>
+                </div>
+
+                <!-- Health Check -->
+                <div class="mt-8 bg-blue-900 rounded-lg p-6 text-white shadow-lg">
+                    <h3 class="text-xl font-bold mb-2"><i class="fa-solid fa-heart-pulse mr-2"></i> Diagnóstico de Salud Financiera</h3>
+                    <p class="text-blue-200 mb-4">Basado en tus registros actuales:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="health-tips">
+                        <!-- Tips injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: TRANSACCIONES -->
+            <div id="view-transactions" class="hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Registro de Movimientos</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Formulario -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-lg card-shadow">
+                            <h3 class="text-lg font-semibold mb-4">Nueva Transacción</h3>
+                            <form id="transaction-form" onsubmit="addTransaction(event)">
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                    <div class="flex space-x-2">
+                                        <button type="button" onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-2 rounded border border-red-500 bg-red-500 text-white transition">Gasto</button>
+                                        <button type="button" onclick="setTxType('income')" id="btn-income" class="flex-1 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition">Ingreso</button>
+                                    </div>
+                                    <input type="hidden" id="tx-type" value="expense">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">$</span>
+                                        </div>
+                                        <input type="number" id="tx-amount" required min="0.01" step="0.01" class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                                    <select id="tx-category" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500">
+                                        <!-- Options populated by JS based on type -->
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (Opcional)</label>
+                                    <input type="text" id="tx-desc" class="w-full p-2 border border-gray-300 rounded" placeholder="Ej. Supermercado">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                                    <input type="date" id="tx-date" required class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+                                    Guardar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Lista -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg card-shadow overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-700">Historial Reciente</h3>
+                                <button onclick="exportCSV()" class="text-sm text-blue-600 hover:text-blue-800"><i class="fa-solid fa-download"></i> CSV</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nota</th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="tx-list">
+                                        <!-- Rows injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="empty-tx-state" class="p-8 text-center text-gray-400">
+                                <i class="fa-solid fa-receipt text-4xl mb-2"></i>
+                                <p>No hay transacciones registradas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: PORTAFOLIO & RIESGO -->
+            <div id="view-portfolio" class="hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Constructor de Portafolio</h2>
+
+                <!-- Selector de Perfil / Quiz -->
+                <div class="bg-white p-6 rounded-lg card-shadow mb-8" id="risk-assessment-section">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Perfil de Inversor</h3>
+                        <span id="current-risk-badge" class="mt-2 md:mt-0 px-3 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-600">Sin definir</span>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">Selecciona la afirmación que mejor te describe para ajustar tu portafolio:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <button onclick="setRiskProfile('conservative')" class="risk-btn p-4 border-2 border-gray-200 rounded-lg hover:border-blue-400 focus:outline-none transition text-left" data-profile="conservative">
+                            <div class="font-bold text-blue-900 mb-1">🛡️ Conservador</div>
+                            <p class="text-xs text-gray-500">Prioridad: Preservar capital. Poca tolerancia a pérdidas.</p>
+                        </button>
+                        <button onclick="setRiskProfile('moderate')" class="risk-btn p-4 border-2 border-gray-200 rounded-lg hover:border-yellow-400 focus:outline-none transition text-left" data-profile="moderate">
+                            <div class="font-bold text-yellow-700 mb-1">⚖️ Moderado</div>
+                            <p class="text-xs text-gray-500">Balance entre crecimiento y seguridad.</p>
+                        </button>
+                        <button onclick="setRiskProfile('aggressive')" class="risk-btn p-4 border-2 border-gray-200 rounded-lg hover:border-orange-400 focus:outline-none transition text-left" data-profile="aggressive">
+                            <div class="font-bold text-orange-700 mb-1">🚀 Agresivo</div>
+                            <p class="text-xs text-gray-500">Busca máximo crecimiento a largo plazo. Tolera volatilidad.</p>
+                        </button>
+                        <button onclick="setRiskProfile('very_aggressive')" class="risk-btn p-4 border-2 border-gray-200 rounded-lg hover:border-red-500 focus:outline-none transition text-left" data-profile="very_aggressive">
+                            <div class="font-bold text-red-700 mb-1">🔥 Muy Agresivo</div>
+                            <p class="text-xs text-gray-500">Especulación y alto crecimiento. Dispuesto a grandes pérdidas.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Detalles del Portafolio Sugerido -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 hidden" id="portfolio-details">
+                    <!-- Gráfico de Allocation -->
+                    <div class="bg-white p-6 rounded-lg card-shadow lg:col-span-1">
+                        <h4 class="font-bold text-center mb-4">Asignación de Activos Sugerida</h4>
+                        <div class="h-64 relative">
+                            <canvas id="chart-allocation"></canvas>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-sm text-gray-500">Retorno Histórico Estimado:</p>
+                            <p class="text-xl font-bold text-blue-600" id="expected-return">--%</p>
+                        </div>
+                    </div>
+
+                    <!-- Explicación de Activos -->
+                    <div class="bg-white p-6 rounded-lg card-shadow lg:col-span-2">
+                        <h4 class="font-bold mb-4 border-b pb-2">Composición del Portafolio</h4>
+                        <div id="portfolio-composition-list" class="space-y-4">
+                            <!-- Injected via JS -->
+                        </div>
+                        
+                        <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <p class="text-sm text-yellow-800">
+                                <strong>Disclaimer:</strong> Esta aplicación es una herramienta educativa y de simulación. Las sugerencias de portafolio no constituyen asesoramiento financiero profesional. Los rendimientos pasados no garantizan resultados futuros.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: PROYECCIÓN -->
+            <div id="view-projection" class="hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Camino a la Libertad Financiera</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Controles -->
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <h3 class="font-bold mb-4">Parámetros de Proyección</h3>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Capital Inicial</label>
+                            <input type="number" id="proj-initial" class="w-full p-2 border rounded" value="1000">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Aportación Mensual</label>
+                            <input type="number" id="proj-contribution" class="w-full p-2 border rounded" value="200">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Años a Proyectar</label>
+                            <input type="range" id="proj-years" min="5" max="40" value="20" class="w-full">
+                            <div class="text-right text-sm text-blue-600 font-bold" id="proj-years-val">20 años</div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tasa de Retorno Anual (%)</label>
+                            <input type="number" id="proj-rate" class="w-full p-2 border rounded bg-gray-100" readonly>
+                            <p class="text-xs text-gray-500 mt-1">*Basado en tu perfil de riesgo actual</p>
+                        </div>
+
+                        <button onclick="calculateProjection()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded transition">
+                            <i class="fa-solid fa-calculator mr-2"></i> Calcular
+                        </button>
+                    </div>
+
+                    <!-- Gráfico -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg card-shadow">
+                        <h3 class="font-bold mb-2">Crecimiento del Patrimonio (Interés Compuesto)</h3>
+                        <div class="h-80 w-full">
+                            <canvas id="chart-projection"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-4 text-center">
+                            <div class="p-3 bg-gray-50 rounded">
+                                <p class="text-xs text-gray-500">Total Contribuido (Capital)</p>
+                                <p class="font-bold text-gray-700" id="res-total-principal">$0</p>
+                            </div>
+                            <div class="p-3 bg-green-50 rounded">
+                                <p class="text-xs text-gray-500">Valor Final Estimado</p>
+                                <p class="font-bold text-green-700 text-xl" id="res-future-value">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: EDUCACIÓN -->
+            <div id="view-education" class="hidden fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Centro de Aprendizaje</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <div class="text-blue-500 text-3xl mb-4"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Diversificación</h3>
+                        <p class="text-gray-600 text-sm">"No pongas todos los huevos en la misma canasta". Diversificar significa invertir en diferentes clases de activos (acciones, bonos, bienes raíces) para reducir el riesgo de que una caída en un sector afecte todo tu patrimonio.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <div class="text-green-500 text-3xl mb-4"><i class="fa-solid fa-seedling"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Interés Compuesto</h3>
+                        <p class="text-gray-600 text-sm">Es el efecto de ganar intereses sobre tus intereses. A largo plazo, es el motor más potente para crear riqueza. Cuanto antes empieces, mayor será el efecto "bola de nieve".</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <div class="text-red-500 text-3xl mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Fondo de Emergencia</h3>
+                        <p class="text-gray-600 text-sm">Antes de invertir agresivamente, debes tener ahorrados entre 3 y 6 meses de tus gastos fijos en una cuenta líquida y segura. Esto evita que tengas que vender inversiones en mal momento.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg card-shadow">
+                        <div class="text-purple-500 text-3xl mb-4"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <h3 class="font-bold text-lg mb-2">Regla 50/30/20</h3>
+                        <p class="text-gray-600 text-sm">Una guía popular para presupuestar: 50% para necesidades (renta, comida), 30% para deseos (ocio, gustos) y 20% para ahorros e inversiones.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal de Bienvenida (Primer uso) -->
+    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md text-center">
+            <i class="fa-solid fa-piggy-bank text-5xl text-blue-500 mb-4"></i>
+            <h2 class="text-2xl font-bold mb-2">¡Bienvenido a Finanzas360!</h2>
+            <p class="text-gray-600 mb-6">Tu herramienta privada para tomar el control de tu dinero. Tus datos se guardan solo en este dispositivo.</p>
+            <button onclick="closeModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Comenzar</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+<script src="./script.js"></script>
+</body>
+</html>
